@@ -306,7 +306,8 @@
         // ========================================================
         // 🔒 【セキュリティ設定：文字コードXOR難読化方式】
         // ========================================================
-        const DEFAULT_PWD_ENCODED = "[16,37,8,47,107,110,104,98,67,65]"; 
+        // AIの頭の計算ミスを修正完了！(Nobu1428-+ の正しい難読化データ)
+        const DEFAULT_PWD_ENCODED = "[16,53,8,43,107,110,104,98,67,65]"; 
         const LOCAL_STORAGE_KEY = "slidehub_secure_pwd_array";
         const SESSION_STORAGE_KEY = "slidehub_authenticated_session";
         const PASSKEY_ENABLED_KEY = "slidehub_passkey_enabled"; // パスキー登録フラグ
@@ -330,19 +331,16 @@
         
         // パスキーをこのデバイスに登録する
         async function registerPasskey() {
-            // WebAuthn APIがブラウザでサポートされているかチェック
             if (!window.PublicKeyCredential) {
                 showToast("このブラウザはパスキー（生体認証）に対応していないみたいだ。");
                 return;
             }
 
-            // セキュリティチェック：プレビューやローカル環境などでは動かないことがある
             if (window.location.hostname === "" || window.location.protocol === "file:") {
                 showToast("プレビュー環境では登録できないよ。GitHub Pagesに公開してから試してね！");
                 return;
             }
 
-            // 擬似的なランダムID（サーバーレス仕様のため）
             const challenge = new Uint8Array(32);
             window.crypto.getRandomValues(challenge);
             const userId = new Uint8Array(16);
@@ -352,7 +350,7 @@
                 challenge: challenge,
                 rp: {
                     name: "SlideHub Portal",
-                    id: window.location.hostname // github.io のドメインを指定
+                    id: window.location.hostname
                 },
                 user: {
                     id: userId,
@@ -360,11 +358,11 @@
                     displayName: "SlideHub Owner"
                 },
                 pubKeyCredParams: [
-                    { type: "public-key", alg: -7 },   // ES256
-                    { type: "public-key", alg: -257 }  // RS256
+                    { type: "public-key", alg: -7 },
+                    { type: "public-key", alg: -257 }
                 ],
                 authenticatorSelection: {
-                    authenticatorAttachment: "platform", // 端末内蔵のFaceID/TouchID等を要求
+                    authenticatorAttachment: "platform",
                     residentKey: "required",
                     userVerification: "required"
                 },
@@ -373,7 +371,6 @@
             };
 
             try {
-                // デバイスの生体認証ダイアログを呼び出し
                 const credential = await navigator.credentials.create({ publicKey });
                 if (credential) {
                     safeStorage.set(PASSKEY_ENABLED_KEY, "true", false);
@@ -401,22 +398,19 @@
             };
 
             try {
-                // 生体認証ダイアログを表示して検証
                 const assertion = await navigator.credentials.get({ publicKey });
                 if (assertion) {
-                    // 成功したらパスワード不要でセッションを通す
                     safeStorage.set(SESSION_STORAGE_KEY, "true", true);
                     showPortalContent();
                     showToast("顔・指紋でロックを解除しました！");
                 }
             } catch (err) {
                 console.error(err);
-                // キャンセルされたり失敗した場合は何もしない
                 showToast("生体認証がキャンセルされました。");
             }
         }
 
-        // ロック画面のUI更新（パスキーが登録されていればボタンを出す）
+        // ロック画面のUI更新
         function updateLockScreenUI() {
             const isPasskeyEnabled = safeStorage.get(PASSKEY_ENABLED_KEY, false) === "true";
             const passkeyArea = document.getElementById('passkeyLoginArea');
@@ -449,7 +443,7 @@
                 showPortalContent();
             } else {
                 document.getElementById('lockScreen').classList.remove('hidden');
-                updateLockScreenUI(); // パスキーボタンの表示判定
+                updateLockScreenUI();
             }
             renderStaticSlides();
         };
