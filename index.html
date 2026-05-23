@@ -38,8 +38,26 @@
                 </svg>
             </div>
             <h2 class="text-xl font-extrabold text-white mb-2">セキュリティロック</h2>
-            <p class="text-xs text-slate-400 mb-6">このポータルを閲覧するにはパスワードが必要です。</p>
+            <p class="text-xs text-slate-400 mb-6">このポータルを閲覧するには認証が必要です。</p>
             
+            <!-- パスキー（生体認証）ログインボタン（登録されている場合のみ表示） -->
+            <div id="passkeyLoginArea" class="hidden mb-6">
+                <button 
+                    onclick="loginWithPasskey()" 
+                    class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                    </svg>
+                    Face ID / Touch ID でロック解除
+                </button>
+                <div class="flex items-center my-4">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="px-3 text-[10px] text-slate-500 font-semibold">または</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+            </div>
+
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div class="relative">
                     <input 
@@ -52,9 +70,9 @@
                 </div>
                 <button 
                     type="submit" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/10"
+                    class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl text-sm transition-all border border-slate-700"
                 >
-                    認証してロックを解除
+                    パスワードでロックを解除
                 </button>
             </form>
             <p id="loginError" class="text-xs text-rose-400 mt-3 h-4 opacity-0 transition-opacity">パスワードが間違っています</p>
@@ -144,9 +162,9 @@
         </main>
     </div>
 
-    <!-- 3. 設定モーダル（パスワード変更画面） -->
+    <!-- 3. 設定モーダル（パスキー登録＆パスワード変更画面） -->
     <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="max-w-md w-full bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl relative">
+        <div class="max-w-md w-full bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button 
                 onclick="closeSettingsModal()" 
                 class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 hover:bg-slate-900 rounded-lg transition-all"
@@ -156,6 +174,27 @@
                 </svg>
             </button>
 
+            <!-- パスキー（生体認証）設定エリア -->
+            <div class="mb-8 border-b border-slate-800 pb-6">
+                <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                    </svg>
+                    パスキー（生体認証）の登録
+                </h3>
+                <p class="text-[11px] text-slate-400 mb-4 leading-relaxed">
+                    このデバイスのFace IDやTouch IDを登録すると、次回からパスワードの入力なしで顔や指紋だけでロックを解除できるようになるよ。
+                </p>
+                <button 
+                    onclick="registerPasskey()" 
+                    class="w-full bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                >
+                    このデバイスにパスキーを登録する
+                </button>
+                <p id="passkeyStatus" class="text-[10px] text-slate-500 mt-2 text-center"></p>
+            </div>
+
+            <!-- パスワード変更エリア -->
             <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 🔐 パスワードの変更
             </h3>
@@ -199,7 +238,7 @@
                         onclick="closeSettingsModal()" 
                         class="flex-1 bg-slate-900 hover:bg-slate-850 text-slate-300 py-2 rounded-xl text-xs font-semibold border border-slate-800 transition-all"
                     >
-                        キャンセル
+                        閉じる
                     </button>
                     <button 
                         type="submit" 
@@ -267,11 +306,10 @@
         // ========================================================
         // 🔒 【セキュリティ設定：文字コードXOR難読化方式】
         // ========================================================
-        // 難読化（暗号化）された初期パスワードデータ
-        // ※ソースコード上に生のパスワードは記載していません
         const DEFAULT_PWD_ENCODED = "[16,37,8,47,107,110,104,98,67,65]"; 
         const LOCAL_STORAGE_KEY = "slidehub_secure_pwd_array";
         const SESSION_STORAGE_KEY = "slidehub_authenticated_session";
+        const PASSKEY_ENABLED_KEY = "slidehub_passkey_enabled"; // パスキー登録フラグ
 
         function encodePassword(pwd) {
             const secretKey = 90;
@@ -283,20 +321,140 @@
         }
 
         function getActiveEncodedPassword() {
-            // 安全なラッパーを通して記憶領域にアクセスする
             return safeStorage.get(LOCAL_STORAGE_KEY, false) || DEFAULT_PWD_ENCODED;
         }
 
+        // ========================================================
+        // 👤 【WebAuthn API：パスキー（生体認証）処理】
+        // ========================================================
+        
+        // パスキーをこのデバイスに登録する
+        async function registerPasskey() {
+            // WebAuthn APIがブラウザでサポートされているかチェック
+            if (!window.PublicKeyCredential) {
+                showToast("このブラウザはパスキー（生体認証）に対応していないみたいだ。");
+                return;
+            }
+
+            // セキュリティチェック：プレビューやローカル環境などでは動かないことがある
+            if (window.location.hostname === "" || window.location.protocol === "file:") {
+                showToast("プレビュー環境では登録できないよ。GitHub Pagesに公開してから試してね！");
+                return;
+            }
+
+            // 擬似的なランダムID（サーバーレス仕様のため）
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
+            const userId = new Uint8Array(16);
+            window.crypto.getRandomValues(userId);
+
+            const publicKey = {
+                challenge: challenge,
+                rp: {
+                    name: "SlideHub Portal",
+                    id: window.location.hostname // github.io のドメインを指定
+                },
+                user: {
+                    id: userId,
+                    name: "admin",
+                    displayName: "SlideHub Owner"
+                },
+                pubKeyCredParams: [
+                    { type: "public-key", alg: -7 },   // ES256
+                    { type: "public-key", alg: -257 }  // RS256
+                ],
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform", // 端末内蔵のFaceID/TouchID等を要求
+                    residentKey: "required",
+                    userVerification: "required"
+                },
+                timeout: 60000,
+                attestation: "none"
+            };
+
+            try {
+                // デバイスの生体認証ダイアログを呼び出し
+                const credential = await navigator.credentials.create({ publicKey });
+                if (credential) {
+                    safeStorage.set(PASSKEY_ENABLED_KEY, "true", false);
+                    showToast("Face ID / Touch ID の登録が完了したよ！");
+                    updateSettingsUI();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("登録がキャンセルされたか、エラーが発生したよ。");
+            }
+        }
+
+        // パスキーでログイン（ロック解除）する
+        async function loginWithPasskey() {
+            if (!window.PublicKeyCredential) return;
+
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
+
+            const publicKey = {
+                challenge: challenge,
+                rpId: window.location.hostname,
+                userVerification: "required",
+                timeout: 60000
+            };
+
+            try {
+                // 生体認証ダイアログを表示して検証
+                const assertion = await navigator.credentials.get({ publicKey });
+                if (assertion) {
+                    // 成功したらパスワード不要でセッションを通す
+                    safeStorage.set(SESSION_STORAGE_KEY, "true", true);
+                    showPortalContent();
+                    showToast("顔・指紋でロックを解除しました！");
+                }
+            } catch (err) {
+                console.error(err);
+                // キャンセルされたり失敗した場合は何もしない
+                showToast("生体認証がキャンセルされました。");
+            }
+        }
+
+        // ロック画面のUI更新（パスキーが登録されていればボタンを出す）
+        function updateLockScreenUI() {
+            const isPasskeyEnabled = safeStorage.get(PASSKEY_ENABLED_KEY, false) === "true";
+            const passkeyArea = document.getElementById('passkeyLoginArea');
+            if (isPasskeyEnabled && window.location.hostname !== "" && window.location.protocol !== "file:") {
+                passkeyArea.classList.remove('hidden');
+            } else {
+                passkeyArea.classList.add('hidden');
+            }
+        }
+
+        // 設定画面のUI更新
+        function updateSettingsUI() {
+            const isPasskeyEnabled = safeStorage.get(PASSKEY_ENABLED_KEY, false) === "true";
+            const statusEl = document.getElementById('passkeyStatus');
+            if (isPasskeyEnabled) {
+                statusEl.textContent = "✅ このデバイスにはパスキーが登録済みです";
+                statusEl.classList.replace("text-slate-500", "text-emerald-400");
+            } else {
+                statusEl.textContent = "未登録です";
+                statusEl.classList.replace("text-emerald-400", "text-slate-500");
+            }
+        }
+
+        // ========================================================
+        // 🚀 【メイン処理】
+        // ========================================================
+
         window.onload = () => {
-            // 安全なラッパーを通してセッションをチェック
             if (safeStorage.get(SESSION_STORAGE_KEY, true) === "true") {
                 showPortalContent();
             } else {
                 document.getElementById('lockScreen').classList.remove('hidden');
+                updateLockScreenUI(); // パスキーボタンの表示判定
             }
             renderStaticSlides();
         };
 
+        // パスワード入力でのログイン
         function handleLogin(e) {
             e.preventDefault();
             const inputField = document.getElementById('portalPassword');
@@ -323,6 +481,7 @@
             safeStorage.remove(SESSION_STORAGE_KEY, true);
             document.getElementById('mainContent').classList.add('hidden');
             document.getElementById('lockScreen').classList.remove('hidden');
+            updateLockScreenUI();
             showToast("ログアウトしました");
         }
 
@@ -332,11 +491,11 @@
         }
 
         // ========================================================
-        // ⚙️ 【パスワード変更処理】
+        // ⚙️ 【設定モーダル関連】
         // ========================================================
         function openSettingsModal() {
+            updateSettingsUI();
             document.getElementById('settingsModal').classList.remove('hidden');
-            document.getElementById('currentPassword').focus();
         }
 
         function closeSettingsModal() {
@@ -406,7 +565,6 @@
                 
                 card.onclick = () => {
                     try {
-                        // プレビュー環境（サンドボックス）では window.open が弾かれるため、エラーをキャッチ
                         const newWindow = window.open(slide.path, '_blank');
                         if(!newWindow) throw new Error("Popup blocked");
                     } catch(e) {
