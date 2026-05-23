@@ -12,79 +12,218 @@
             font-family: 'Inter', sans-serif;
             background-color: #0b0f19;
         }
+        /* スクロールバーのカスタマイズ */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col">
 
-    <!-- ヘッダー -->
-    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md py-4 px-6 sticky top-0 z-40">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
+    <!-- 1. パスワードロック画面 (初期状態は表示、認証後に隠す) -->
+    <div id="lockScreen" class="fixed inset-0 z-50 bg-[#0b0f19] flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-slate-950/80 border border-slate-800 rounded-2xl p-8 shadow-2xl text-center">
+            <div class="w-12 h-12 bg-indigo-950 border border-indigo-800/60 rounded-xl flex items-center justify-center mx-auto mb-4 text-indigo-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+            <h2 class="text-xl font-extrabold text-white mb-2">セキュリティロック</h2>
+            <p class="text-xs text-slate-400 mb-6">このポータルを閲覧するにはパスワードが必要です。</p>
+            
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="portalPassword" 
+                        placeholder="パスワードを入力してください" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-center font-mono tracking-widest text-sm"
+                        required
+                    >
+                </div>
+                <button 
+                    type="submit" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/10"
+                >
+                    認証してロックを解除
+                </button>
+            </form>
+            <p id="loginError" class="text-xs text-rose-400 mt-3 h-4 opacity-0 transition-opacity">パスワードが間違っています</p>
+        </div>
+    </div>
+
+    <!-- 2. ポータルメインコンテンツ (認証後にJavaScriptで可視化) -->
+    <div id="mainContent" class="hidden flex-1 flex flex-col">
+        <!-- ヘッダー -->
+        <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md py-4 px-6 sticky top-0 z-40">
+            <div class="max-w-4xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                            SlideHub <span class="text-indigo-400 font-medium text-sm">Portal</span>
+                        </h1>
+                        <p class="text-[10px] text-slate-400">事前配置スライドの別タブ再生専用リンク集</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button 
+                        onclick="openSettingsModal()" 
+                        class="text-xs text-slate-300 hover:text-white bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                        </svg>
+                        設定
+                    </button>
+                    <button 
+                        onclick="handleLogout()" 
+                        class="text-xs text-slate-400 hover:text-rose-400 bg-slate-900/50 hover:bg-rose-950/10 border border-slate-800 hover:border-rose-900/50 px-2.5 py-1.5 rounded-lg transition-all"
+                    >
+                        ログアウト
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
+            
+            <!-- 【セクション】スライド一覧 -->
+            <section class="bg-slate-950/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="mb-6">
+                    <h2 class="text-sm font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        公開プレゼンテーション一覧
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">
+                        以下の一覧から見たいスライドを選択してね。クリックすると別タブで開き、iPhoneやiPadでもPC同様にきれいに表示されるよ。
+                    </p>
+                </div>
+
+                <!-- スライド一覧リスト（ここにJavaScriptで綺麗にカードが並びます） -->
+                <div id="slideList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- JavaScriptで動的に描画されます -->
+                </div>
+            </section>
+
+            <!-- 【使い方の解説アコーディオン】 -->
+            <section class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-5">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    スライドの追加・管理方法
+                </h3>
+                <div class="text-xs text-slate-400 space-y-2 leading-relaxed">
+                    <p>GitHub上のフォルダ構成を以下のように配置するだけで自動で反映されるよ！</p>
+                    <div class="bg-slate-950 p-3.5 rounded-lg border border-slate-800 font-mono text-[11px] text-indigo-300">
+                        📂 リポジトリの構成例：<br>
+                        ├── index.html (このファイル)<br>
+                        └── <span class="text-emerald-400 font-bold">slides/</span> (この配下にMarpから出したHTMLを入れる)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 260526_益田市勉強会_幹部向け.html<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── (新規追加スライド).html
+                    </div>
+                    <p class="pt-1">
+                        新しいスライドを増やした時は、この <code class="bg-slate-950 text-indigo-300 px-1 py-0.5 rounded">index.html</code> のコード最下部付近にある「<code class="bg-slate-950 text-emerald-400 px-1 py-0.5 rounded">STATIC_SLIDES_CONFIG</code>」の配列に、ファイル名を追加してプッシュ（アップロード）してね。
+                    </p>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="border-t border-slate-900 bg-slate-950/40 py-4 px-6 text-center text-[10px] text-slate-600 mt-auto">
+            SlideHub Portal | Designed for seamless Marp slide management on iOS, iPadOS and desktop.
+        </footer>
+    </div>
+
+    <!-- 3. 設定モーダル（パスワード変更画面） -->
+    <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="max-w-md w-full bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl relative">
+            <button 
+                onclick="closeSettingsModal()" 
+                class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 hover:bg-slate-900 rounded-lg transition-all"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                🔐 パスワードの変更
+            </h3>
+            <p class="text-[11px] text-slate-400 mb-5">このデバイスでログインするためのパスワードを変更します。</p>
+
+            <form onsubmit="handlePasswordChange(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">現在のパスワード</label>
+                    <input 
+                        type="password" 
+                        id="currentPassword" 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        placeholder="現在のパスワードを入力"
+                        required
+                    >
                 </div>
                 <div>
-                    <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                        SlideHub <span class="text-indigo-400 font-medium text-sm">Portal</span>
-                    </h1>
-                    <p class="text-[10px] text-slate-400">事前配置スライドの別タブ再生専用リンク集</p>
+                    <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">新しいパスワード</label>
+                    <input 
+                        type="password" 
+                        id="newPassword" 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        placeholder="新しいパスワードを入力"
+                        required
+                    >
                 </div>
-            </div>
-            <div class="text-xs text-indigo-400 bg-indigo-950/40 px-3 py-1.5 rounded-full border border-indigo-900/50 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                GitHub Pages 動作確認済
-            </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">新しいパスワード（確認用）</label>
+                    <input 
+                        type="password" 
+                        id="newPasswordConfirm" 
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        placeholder="もう一度入力してください"
+                        required
+                    >
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button 
+                        type="button" 
+                        onclick="closeSettingsModal()" 
+                        class="flex-1 bg-slate-900 hover:bg-slate-850 text-slate-300 py-2 rounded-xl text-xs font-semibold border border-slate-800 transition-all"
+                    >
+                        キャンセル
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-semibold transition-all shadow-lg"
+                    >
+                        変更を適用する
+                    </button>
+                </div>
+            </form>
+            <p id="settingsError" class="text-[10px] text-rose-400 mt-2.5 text-center h-4 opacity-0 transition-opacity"></p>
         </div>
-    </header>
+    </div>
 
-    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
-        
-        <!-- 【セクション】スライド一覧 -->
-        <section class="bg-slate-950/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
-            <div class="mb-6">
-                <h2 class="text-sm font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    公開プレゼンテーション一覧
-                </h2>
-                <p class="text-xs text-slate-400 mt-1">
-                    以下の一覧から見たいスライドを選択してね。クリックすると別タブで開き、iPhoneやiPadでもPC同様にきれいに表示されるよ。
-                </p>
-            </div>
-
-            <!-- スライド一覧リスト（ここにJavaScriptで綺麗にカードが並びます） -->
-            <div id="slideList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- JavaScriptで動的に描画されます -->
-            </div>
-        </section>
-
-        <!-- 【使い方の解説アコーディオン】デジタル庁やコンサル業務での運用を想定し、マニュアルを統合 -->
-        <section class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-5">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                スライドの追加・管理方法
-            </h3>
-            <div class="text-xs text-slate-400 space-y-2 leading-relaxed">
-                <p>GitHub上のフォルダ構成を以下のように配置するだけで自動で反映されるよ！</p>
-                <div class="bg-slate-950 p-3.5 rounded-lg border border-slate-800 font-mono text-[11px] text-indigo-300">
-                    📂 リポジトリの構成例：<br>
-                    ├── index.html (このファイル)<br>
-                    └── <span class="text-emerald-400 font-bold">slides/</span> (この配下にMarpから出したHTMLを入れる)<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 260526_益田市勉強会_幹部向け.html<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── (新規追加スライド).html
-                </div>
-                <p class="pt-1">
-                    新しいスライドを増やした時は、この <code class="bg-slate-950 text-indigo-300 px-1 py-0.5 rounded">index.html</code> のコード最下部付近にある「<code class="bg-slate-950 text-emerald-400 px-1 py-0.5 rounded">STATIC_SLIDES_CONFIG</code>」の配列に、ファイル名を追加してプッシュ（アップロード）してね。
-                </p>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="border-t border-slate-900 bg-slate-950/40 py-4 px-6 text-center text-[10px] text-slate-600 mt-auto">
-        SlideHub Portal | Designed for seamless Marp slide management on iOS, iPadOS and desktop.
-    </footer>
+    <!-- 通知メッセージ (トースト) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-10 opacity-0 transition-all duration-300 bg-indigo-950 border border-indigo-800 text-indigo-200 px-4 py-3 rounded-xl text-xs flex items-center gap-2 shadow-xl">
+        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span id="toastText">通知内容</span>
+    </div>
 
     <!-- スライドデータ定義 ＆ レンダリング用スクリプト -->
     <script>
@@ -97,19 +236,154 @@
                 path: "./slides/260526_益田市勉強会_幹部向け.html",
                 description: "島根県益田市 幹部職員向け勉強会用スライド"
             }
-            // 💡 追加する場合は、以下のようにカンマで区切って定義してね
-            // ,
-            // {
-            //     fileName: "新規プレゼン資料.html",
-            //     path: "./slides/新規プレゼン資料.html",
-            //     description: "ここにスライドの簡単な説明文を入れられます"
-            // }
         ];
 
         // ========================================================
-        // 🚀 【表示処理】定義されたスライドをHTMLカードに自動描画する
+        // 🔒 【セキュリティ設定】
         // ========================================================
+        // 初期パスワード "Nobu1428-++" をSHA-256で完全にハッシュ化したもの
+        const DEFAULT_PWD_HASH = "8e6c40685718501168fcfec5f1db56b858e990c74fb9b6a71e8bf293ec2a8fc2";
+        const LOCAL_STORAGE_KEY = "slidehub_secure_pwd_hash";
+        const SESSION_STORAGE_KEY = "slidehub_authenticated_session";
+
+        // 文字列からSHA-256のハッシュ（暗号文字列）をリアルタイムに計算する関数
+        async function calculateSHA256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // 現在設定されている有効なハッシュ値（カスタム変更されていればそれを使用、なければデフォルト）
+        function getActiveHash() {
+            return localStorage.getItem(LOCAL_STORAGE_KEY) || DEFAULT_PWD_HASH;
+        }
+
+        // ページロード時の初期評価
         window.onload = () => {
+            // セッションがすでに認証済みの場合は、即座にポータルを展開
+            if (sessionStorage.getItem(SESSION_STORAGE_KEY) === "true") {
+                showPortalContent();
+            } else {
+                document.getElementById('lockScreen').classList.remove('hidden');
+            }
+            renderStaticSlides();
+        };
+
+        // ログイン（認証処理）
+        async function handleLogin(e) {
+            e.preventDefault();
+            const inputField = document.getElementById('portalPassword');
+            const errorLabel = document.getElementById('loginError');
+            const password = inputField.value;
+
+            errorLabel.classList.add('opacity-0');
+
+            try {
+                const inputHash = await calculateSHA256(password);
+                const activeHash = getActiveHash();
+
+                if (inputHash === activeHash) {
+                    // 認証成功：セッションに保存（タブを閉じるまで有効）
+                    sessionStorage.setItem(SESSION_STORAGE_KEY, "true");
+                    showPortalContent();
+                    inputField.value = '';
+                } else {
+                    // 認証失敗
+                    errorLabel.textContent = "パスワードが間違っています。";
+                    errorLabel.classList.remove('opacity-0');
+                    inputField.select();
+                }
+            } catch (err) {
+                console.error("ハッシュ計算中にエラー:", err);
+                errorLabel.textContent = "お使いのブラウザはセキュリティ機能に対応していません。";
+                errorLabel.classList.remove('opacity-0');
+            }
+        }
+
+        // ログアウト処理
+        function handleLogout() {
+            sessionStorage.removeItem(SESSION_STORAGE_KEY);
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('lockScreen').classList.remove('hidden');
+            showToast("ログアウトしました");
+        }
+
+        // 認証成功時の画面切り替え
+        function showPortalContent() {
+            document.getElementById('lockScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
+
+        // ========================================================
+        // ⚙️ 【パスワード変更処理】
+        // ========================================================
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+            document.getElementById('currentPassword').focus();
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+            // フォームの初期化
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newPasswordConfirm').value = '';
+            document.getElementById('settingsError').classList.add('opacity-0');
+        }
+
+        // サイト内からのパスワード変更処理
+        async function handlePasswordChange(e) {
+            e.preventDefault();
+            const currentPwd = document.getElementById('currentPassword').value;
+            const newPwd = document.getElementById('newPassword').value;
+            const newPwdConfirm = document.getElementById('newPasswordConfirm').value;
+            const errorLabel = document.getElementById('settingsError');
+
+            errorLabel.classList.add('opacity-0');
+
+            // 1. 新しいパスワードの確認一致チェック
+            if (newPwd !== newPwdConfirm) {
+                errorLabel.textContent = "新しいパスワードが一致しません。";
+                errorLabel.classList.remove('opacity-0');
+                return;
+            }
+
+            // 2. 新しいパスワードの長さ簡易チェック（セキュリティ向上のため）
+            if (newPwd.length < 4) {
+                errorLabel.textContent = "パスワードは4文字以上で設定してください。";
+                errorLabel.classList.remove('opacity-0');
+                return;
+            }
+
+            try {
+                // 3. 現在のパスワードが正しいか検証
+                const currentHash = await calculateSHA256(currentPwd);
+                const activeHash = getActiveHash();
+
+                if (currentHash !== activeHash) {
+                    errorLabel.textContent = "現在のパスワードが間違っています。";
+                    errorLabel.classList.remove('opacity-0');
+                    return;
+                }
+
+                // 4. 新しいパスワードをハッシュ化してlocalStorageに上書き保存
+                const newHash = await calculateSHA256(newPwd);
+                localStorage.setItem(LOCAL_STORAGE_KEY, newHash);
+                
+                closeSettingsModal();
+                showToast("パスワードを変更しました！次回から適用されます。");
+            } catch (err) {
+                console.error("パスワード変更失敗:", err);
+                errorLabel.textContent = "変更中に技術的エラーが発生しました。";
+                errorLabel.classList.remove('opacity-0');
+            }
+        }
+
+        // ========================================================
+        // 🚀 【スライド表示処理】定義されたスライドをHTMLカードに自動描画する
+        // ========================================================
+        function renderStaticSlides() {
             const listEl = document.getElementById('slideList');
             listEl.innerHTML = '';
 
@@ -122,18 +396,14 @@
                 return;
             }
 
-            // カードを一枚ずつ生成
             STATIC_SLIDES_CONFIG.forEach(slide => {
                 const card = document.createElement('div');
-                // ホバーした時に少し浮き上がり、境界線が光るリッチなコンサルタント向けUIデザイン
                 card.className = "flex flex-col justify-between p-5 bg-slate-900/40 border border-slate-800/80 hover:border-indigo-500/50 hover:bg-slate-900/80 rounded-xl transition-all cursor-pointer group";
                 
-                // カード全体をクリックしたときに別タブで直接再生
                 card.onclick = () => {
                     window.open(slide.path, '_blank');
                 };
 
-                // 説明文の有無によるフォールバック設定
                 const descText = slide.description || "slidesフォルダ内配置スライド";
 
                 card.innerHTML = `
@@ -164,7 +434,22 @@
                 `;
                 listEl.appendChild(card);
             });
-        };
+        }
+
+        // トースト通知関数
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toastText');
+            toastText.textContent = text;
+            
+            toast.classList.remove('translate-y-10', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-10', 'opacity-0');
+            }, 3000);
+        }
     </script>
 </body>
 </html>
