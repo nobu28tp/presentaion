@@ -280,7 +280,8 @@
             get: function(key, isSession = false) {
                 try {
                     const storage = isSession ? sessionStorage : localStorage;
-                    return storage.getItem(key) || this.memory[key];
+                    const val = storage.getItem(key);
+                    return val !== null ? val : this.memory[key];
                 } catch(e) {
                     return this.memory[key];
                 }
@@ -304,13 +305,15 @@
         };
 
         // ========================================================
-        // 🔒 【セキュリティ設定：文字コードXOR難読化方式】
+        // 🔒 【セキュリティ設定：文字コードXOR難読化方式 (改)】
         // ========================================================
-        // AIの頭の計算ミスを修正完了！(Nobu1428-+ の正しい難読化データ)
-        const DEFAULT_PWD_ENCODED = "[16,53,8,43,107,110,104,98,67,65]"; 
-        const LOCAL_STORAGE_KEY = "slidehub_secure_pwd_array";
-        const SESSION_STORAGE_KEY = "slidehub_authenticated_session";
-        const PASSKEY_ENABLED_KEY = "slidehub_passkey_enabled"; // パスキー登録フラグ
+        // JSONの変換ブレを防ぐため、単純なカンマ区切り文字列に方式を変更
+        const DEFAULT_PWD_ENCODED = "16,53,8,43,107,110,104,98,67,65"; 
+        
+        // 【重要】過去のバグデータを読み込まないよう、保存キー名（v2）を変更してキャッシュを強制リセット
+        const LOCAL_STORAGE_KEY = "slidehub_secure_pwd_v2";
+        const SESSION_STORAGE_KEY = "slidehub_authenticated_session_v2";
+        const PASSKEY_ENABLED_KEY = "slidehub_passkey_enabled_v2"; 
 
         function encodePassword(pwd) {
             const secretKey = 90;
@@ -318,7 +321,7 @@
             for (let i = 0; i < pwd.length; i++) {
                 encodedArray.push(pwd.charCodeAt(i) ^ secretKey);
             }
-            return JSON.stringify(encodedArray);
+            return encodedArray.join(',');
         }
 
         function getActiveEncodedPassword() {
@@ -329,7 +332,6 @@
         // 👤 【WebAuthn API：パスキー（生体認証）処理】
         // ========================================================
         
-        // パスキーをこのデバイスに登録する
         async function registerPasskey() {
             if (!window.PublicKeyCredential) {
                 showToast("このブラウザはパスキー（生体認証）に対応していないみたいだ。");
@@ -383,7 +385,6 @@
             }
         }
 
-        // パスキーでログイン（ロック解除）する
         async function loginWithPasskey() {
             if (!window.PublicKeyCredential) return;
 
@@ -410,7 +411,6 @@
             }
         }
 
-        // ロック画面のUI更新
         function updateLockScreenUI() {
             const isPasskeyEnabled = safeStorage.get(PASSKEY_ENABLED_KEY, false) === "true";
             const passkeyArea = document.getElementById('passkeyLoginArea');
@@ -421,7 +421,6 @@
             }
         }
 
-        // 設定画面のUI更新
         function updateSettingsUI() {
             const isPasskeyEnabled = safeStorage.get(PASSKEY_ENABLED_KEY, false) === "true";
             const statusEl = document.getElementById('passkeyStatus');
@@ -448,12 +447,13 @@
             renderStaticSlides();
         };
 
-        // パスワード入力でのログイン
         function handleLogin(e) {
             e.preventDefault();
             const inputField = document.getElementById('portalPassword');
             const errorLabel = document.getElementById('loginError');
-            const password = inputField.value;
+            
+            // 空白が混入してもエラーにならないように trim() で削る
+            const password = inputField.value.trim();
 
             errorLabel.classList.add('opacity-0');
 
@@ -502,9 +502,9 @@
 
         function handlePasswordChange(e) {
             e.preventDefault();
-            const currentPwd = document.getElementById('currentPassword').value;
-            const newPwd = document.getElementById('newPassword').value;
-            const newPwdConfirm = document.getElementById('newPasswordConfirm').value;
+            const currentPwd = document.getElementById('currentPassword').value.trim();
+            const newPwd = document.getElementById('newPassword').value.trim();
+            const newPwdConfirm = document.getElementById('newPasswordConfirm').value.trim();
             const errorLabel = document.getElementById('settingsError');
 
             errorLabel.classList.add('opacity-0');
