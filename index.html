@@ -40,9 +40,10 @@
             <h2 class="text-xl font-extrabold text-white mb-2">セキュリティロック</h2>
             <p class="text-xs text-slate-400 mb-6">このポータルを閲覧するには認証が必要です。</p>
             
-            <!-- パスキー（生体認証）ログインボタン（登録されている場合のみ表示） -->
+            <!-- パスキー（生体認証）ログインボタン -->
             <div id="passkeyLoginArea" class="hidden mb-6">
                 <button 
+                    type="button"
                     onclick="loginWithPasskey()" 
                     class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                 >
@@ -58,23 +59,26 @@
                 </div>
             </div>
 
-            <form onsubmit="handleLogin(event)" class="space-y-4">
+            <!-- フォームタグを使わずに構成（画面リロード事故を完全に防ぐため） -->
+            <div class="space-y-4">
                 <div class="relative">
                     <input 
                         type="password" 
                         id="portalPassword" 
+                        onkeydown="if(event.key === 'Enter'){ handleLogin(event); }"
                         placeholder="パスワードを入力してください" 
                         class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-center font-mono tracking-widest text-sm"
                         required
                     >
                 </div>
                 <button 
-                    type="submit" 
+                    type="button" 
+                    onclick="handleLogin(event)"
                     class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl text-sm transition-all border border-slate-700"
                 >
                     パスワードでロックを解除
                 </button>
-            </form>
+            </div>
             <p id="loginError" class="text-xs text-rose-400 mt-3 h-4 opacity-0 transition-opacity">パスワードが間違っています</p>
         </div>
     </div>
@@ -200,7 +204,7 @@
             </h3>
             <p class="text-[11px] text-slate-400 mb-5">このデバイスでログインするためのパスワードを変更します。</p>
 
-            <form onsubmit="handlePasswordChange(event)" class="space-y-4">
+            <div class="space-y-4" onkeydown="if(event.key === 'Enter'){ handlePasswordChange(event); }">
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">現在のパスワード</label>
                     <input 
@@ -241,13 +245,14 @@
                         閉じる
                     </button>
                     <button 
-                        type="submit" 
+                        type="button" 
+                        onclick="handlePasswordChange(event)"
                         class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-semibold transition-all shadow-lg"
                     >
                         変更を適用する
                     </button>
                 </div>
-            </form>
+            </div>
             <p id="settingsError" class="text-[10px] text-rose-400 mt-2.5 text-center h-4 opacity-0 transition-opacity"></p>
         </div>
     </div>
@@ -305,15 +310,15 @@
         };
 
         // ========================================================
-        // 🔒 【セキュリティ設定：文字コードXOR難読化方式 (改)】
+        // 🔒 【セキュリティ設定：文字コードXOR難読化方式 (完璧版)】
         // ========================================================
-        // JSONの変換ブレを防ぐため、単純なカンマ区切り文字列に方式を変更
-        const DEFAULT_PWD_ENCODED = "16,53,8,43,107,110,104,98,67,65"; 
+        // 100%正確に「Nobu1428-+」をXOR変換(Key:90)した正解データ
+        const DEFAULT_PWD_ENCODED = "20,53,56,47,107,110,104,98,119,113"; 
         
-        // 【重要】過去のバグデータを読み込まないよう、保存キー名（v2）を変更してキャッシュを強制リセット
-        const LOCAL_STORAGE_KEY = "slidehub_secure_pwd_v2";
-        const SESSION_STORAGE_KEY = "slidehub_authenticated_session_v2";
-        const PASSKEY_ENABLED_KEY = "slidehub_passkey_enabled_v2"; 
+        // 【最重要】バグデータを完全に置き去りにするため、キーを v4 に更新！
+        const LOCAL_STORAGE_KEY = "slidehub_secure_pwd_v4";
+        const SESSION_STORAGE_KEY = "slidehub_authenticated_session_v4";
+        const PASSKEY_ENABLED_KEY = "slidehub_passkey_enabled_v4"; 
 
         function encodePassword(pwd) {
             const secretKey = 90;
@@ -448,7 +453,7 @@
         };
 
         function handleLogin(e) {
-            e.preventDefault();
+            if(e) e.preventDefault();
             const inputField = document.getElementById('portalPassword');
             const errorLabel = document.getElementById('loginError');
             
@@ -501,7 +506,7 @@
         }
 
         function handlePasswordChange(e) {
-            e.preventDefault();
+            if(e) e.preventDefault();
             const currentPwd = document.getElementById('currentPassword').value.trim();
             const newPwd = document.getElementById('newPassword').value.trim();
             const newPwdConfirm = document.getElementById('newPasswordConfirm').value.trim();
