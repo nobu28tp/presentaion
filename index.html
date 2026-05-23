@@ -11,20 +11,10 @@
             font-family: 'Inter', sans-serif;
             background-color: #0b0f19;
         }
-        /* スクロールバーのカスタマイズ */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #0b0f19;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #334155;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0b0f19; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #334155; }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col">
@@ -40,7 +30,6 @@
             <h2 class="text-xl font-extrabold text-white mb-2">セキュリティロック</h2>
             <p class="text-xs text-slate-400 mb-6">このポータルを閲覧するには認証が必要です。</p>
             
-            <!-- パスキー（生体認証）ログインボタン -->
             <div id="passkeyLoginArea" class="hidden mb-6">
                 <button 
                     type="button"
@@ -59,7 +48,6 @@
                 </div>
             </div>
 
-            <!-- フォームタグを使わずに構成（画面リロード事故を完全に防ぐため） -->
             <div class="space-y-4">
                 <div class="relative">
                     <input 
@@ -85,7 +73,6 @@
 
     <!-- 2. ポータルメインコンテンツ -->
     <div id="mainContent" class="hidden flex-1 flex flex-col">
-        <!-- ヘッダー -->
         <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md py-4 px-6 sticky top-0 z-40">
             <div class="max-w-4xl mx-auto flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -102,19 +89,15 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button 
-                        onclick="openSettingsModal()" 
-                        class="text-xs text-slate-300 hover:text-white bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
-                    >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                        </svg>
+                    <button onclick="fetchSlidesAutomatically()" class="text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-950/30 border border-indigo-900/50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        リスト更新
+                    </button>
+                    <button onclick="openSettingsModal()" class="text-xs text-slate-300 hover:text-white bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                         設定
                     </button>
-                    <button 
-                        onclick="handleLogout()" 
-                        class="text-xs text-slate-400 hover:text-rose-400 bg-slate-900/50 hover:bg-rose-950/10 border border-slate-800 hover:border-rose-900/50 px-2.5 py-1.5 rounded-lg transition-all"
-                    >
+                    <button onclick="handleLogout()" class="text-xs text-slate-400 hover:text-rose-400 bg-slate-900/50 hover:bg-rose-950/10 border border-slate-800 hover:border-rose-900/50 px-2.5 py-1.5 rounded-lg transition-all">
                         ログアウト
                     </button>
                 </div>
@@ -122,8 +105,6 @@
         </header>
 
         <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
-            
-            <!-- 【セクション】スライド一覧 -->
             <section class="bg-slate-950/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <div class="mb-6">
                     <h2 class="text-sm font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
@@ -131,126 +112,79 @@
                         公開プレゼンテーション一覧
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">
-                        以下の一覧から見たいスライドを選択してね。クリックすると別タブで開き、iPhoneやiPadでもPC同様にきれいに表示されるよ。<br>
+                        <code>slides/</code> フォルダ内のHTMLファイルが自動的に取得されています。<br>
                         <span class="text-rose-400 font-semibold">※プレビュー画面ではセキュリティ制限のため別タブでは開けません。実際の動作はGitHubにアップして確認してね！</span>
                     </p>
                 </div>
 
-                <!-- スライド一覧リスト -->
+                <!-- スライド一覧リスト（自動取得されたデータが描画されます） -->
                 <div id="slideList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- JavaScriptで動的に描画されます -->
+                    <div class="col-span-2 text-center text-xs text-indigo-400 py-12 flex flex-col items-center gap-3">
+                        <div class="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span>スライドを探しています...</span>
+                    </div>
                 </div>
             </section>
 
-            <!-- 【使い方の解説】 -->
             <section class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-5">
                 <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    スライドの追加・管理方法
+                    自動取得の仕組みについて
                 </h3>
                 <div class="text-xs text-slate-400 space-y-2 leading-relaxed">
-                    <p>GitHub上のフォルダ構成を以下のように配置するだけで自動で反映されるよ！</p>
-                    <div class="bg-slate-950 p-3.5 rounded-lg border border-slate-800 font-mono text-[11px] text-indigo-300">
-                        📂 リポジトリの構成例：<br>
-                        ├── index.html (このファイル)<br>
-                        └── <span class="text-emerald-400 font-bold">slides/</span> (この配下にMarpから出したHTMLを入れる)<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 260526_益田市勉強会_幹部向け.html<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── (新規追加スライド).html
+                    <p>このポータルは、GitHub APIを使って <code>slides/</code> フォルダの中身を自動でリストアップしています。</p>
+                    <div class="bg-slate-950 p-3.5 rounded-lg border border-slate-800 font-mono text-[11px] text-emerald-300">
+                        【操作手順】<br>
+                        1. リポジトリの <span class="text-white">slides/</span> フォルダに新しいHTMLをプッシュするだけ！<br>
+                        2. 手動でコードを書き換える必要はなくなりました。<br>
+                        3. リロードするたびに常に最新のリストが表示されます。
                     </div>
-                    <p class="pt-1">
-                        新しいスライドを増やした時は、この <code class="bg-slate-950 text-indigo-300 px-1 py-0.5 rounded">index.html</code> のコード最下部付近にある「<code class="bg-slate-950 text-emerald-400 px-1 py-0.5 rounded">STATIC_SLIDES_CONFIG</code>」の配列に、ファイル名を追加してプッシュ（アップロード）してね。
-                    </p>
                 </div>
             </section>
-
         </main>
     </div>
 
-    <!-- 3. 設定モーダル（パスキー登録＆パスワード変更画面） -->
+    <!-- 3. 設定モーダル -->
     <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="max-w-md w-full bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <button 
-                onclick="closeSettingsModal()" 
-                class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 hover:bg-slate-900 rounded-lg transition-all"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
+            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 hover:bg-slate-900 rounded-lg transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
 
             <!-- パスキー（生体認証）設定エリア -->
             <div class="mb-8 border-b border-slate-800 pb-6">
                 <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
-                    </svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
                     パスキー（生体認証）の登録
                 </h3>
                 <p class="text-[11px] text-slate-400 mb-4 leading-relaxed">
                     このデバイスのFace IDやTouch IDを登録すると、次回からパスワードの入力なしで顔や指紋だけでロックを解除できるようになるよ。
                 </p>
-                <button 
-                    onclick="registerPasskey()" 
-                    class="w-full bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
-                >
+                <button onclick="registerPasskey()" class="w-full bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
                     このデバイスにパスキーを登録する
                 </button>
                 <p id="passkeyStatus" class="text-[10px] text-slate-500 mt-2 text-center"></p>
             </div>
 
             <!-- パスワード変更エリア -->
-            <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                🔐 パスワードの変更
-            </h3>
-            <p class="text-[11px] text-slate-400 mb-5">このデバイスでログインするためのパスワードを変更します。</p>
-
+            <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">🔐 パスワードの変更</h3>
             <div class="space-y-4" onkeydown="if(event.key === 'Enter'){ handlePasswordChange(event); }">
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">現在のパスワード</label>
-                    <input 
-                        type="password" 
-                        id="currentPassword" 
-                        class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                        placeholder="現在のパスワードを入力"
-                        required
-                    >
+                    <input type="password" id="currentPassword" class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500" placeholder="現在のパスワードを入力" required>
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">新しいパスワード</label>
-                    <input 
-                        type="password" 
-                        id="newPassword" 
-                        class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                        placeholder="新しいパスワードを入力"
-                        required
-                    >
+                    <input type="password" id="newPassword" class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500" placeholder="新しいパスワードを入力" required>
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">新しいパスワード（確認用）</label>
-                    <input 
-                        type="password" 
-                        id="newPasswordConfirm" 
-                        class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                        placeholder="もう一度入力してください"
-                        required
-                    >
+                    <input type="password" id="newPasswordConfirm" class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500" placeholder="もう一度入力してください" required>
                 </div>
 
                 <div class="pt-2 flex gap-3">
-                    <button 
-                        type="button" 
-                        onclick="closeSettingsModal()" 
-                        class="flex-1 bg-slate-900 hover:bg-slate-850 text-slate-300 py-2 rounded-xl text-xs font-semibold border border-slate-800 transition-all"
-                    >
-                        閉じる
-                    </button>
-                    <button 
-                        type="button" 
-                        onclick="handlePasswordChange(event)"
-                        class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-semibold transition-all shadow-lg"
-                    >
-                        変更を適用する
-                    </button>
+                    <button type="button" onclick="closeSettingsModal()" class="flex-1 bg-slate-900 hover:bg-slate-850 text-slate-300 py-2 rounded-xl text-xs font-semibold border border-slate-800 transition-all">閉じる</button>
+                    <button type="button" onclick="handlePasswordChange(event)" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-semibold transition-all shadow-lg">変更を適用する</button>
                 </div>
             </div>
             <p id="settingsError" class="text-[10px] text-rose-400 mt-2.5 text-center h-4 opacity-0 transition-opacity"></p>
@@ -259,23 +193,16 @@
 
     <!-- 通知メッセージ (トースト) -->
     <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-10 opacity-0 transition-all duration-300 bg-indigo-950 border border-indigo-800 text-indigo-200 px-4 py-3 rounded-xl text-xs flex items-center gap-2 shadow-xl">
-        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
+        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span id="toastText">通知内容</span>
     </div>
 
     <script>
         // ========================================================
-        // 📁 【スライド定義】
+        // 📁 【自動取得設定】GitHub APIの連携
         // ========================================================
-        const STATIC_SLIDES_CONFIG = [
-            { 
-                fileName: "260526_益田市勉強会_幹部向け.html", 
-                path: "./slides/260526_益田市勉強会_幹部向け.html",
-                description: "島根県益田市 幹部職員向け勉強会用スライド"
-            }
-        ];
+        const GITHUB_USERNAME = "nobu28tp"; 
+        const GITHUB_REPO = "presentaion"; 
 
         // ========================================================
         // 🛡️ 【プレビュー環境エラー回避用の安全な記憶領域（ラッパー）】
@@ -287,35 +214,26 @@
                     const storage = isSession ? sessionStorage : localStorage;
                     const val = storage.getItem(key);
                     return val !== null ? val : this.memory[key];
-                } catch(e) {
-                    return this.memory[key];
-                }
+                } catch(e) { return this.memory[key]; }
             },
             set: function(key, value, isSession = false) {
                 try {
                     const storage = isSession ? sessionStorage : localStorage;
                     storage.setItem(key, value);
-                } catch(e) {
-                    this.memory[key] = value;
-                }
+                } catch(e) { this.memory[key] = value; }
             },
             remove: function(key, isSession = false) {
                 try {
                     const storage = isSession ? sessionStorage : localStorage;
                     storage.removeItem(key);
-                } catch(e) {
-                    delete this.memory[key];
-                }
+                } catch(e) { delete this.memory[key]; }
             }
         };
 
         // ========================================================
-        // 🔒 【セキュリティ設定：文字コードXOR難読化方式 (完璧版)】
+        // 🔒 【セキュリティ設定：文字コードXOR難読化方式】
         // ========================================================
-        // 100%正確に「Nobu1428-+」をXOR変換(Key:90)した正解データ
         const DEFAULT_PWD_ENCODED = "20,53,56,47,107,110,104,98,119,113"; 
-        
-        // 【最重要】バグデータを完全に置き去りにするため、キーを v4 に更新！
         const LOCAL_STORAGE_KEY = "slidehub_secure_pwd_v4";
         const SESSION_STORAGE_KEY = "slidehub_authenticated_session_v4";
         const PASSKEY_ENABLED_KEY = "slidehub_passkey_enabled_v4"; 
@@ -336,13 +254,11 @@
         // ========================================================
         // 👤 【WebAuthn API：パスキー（生体認証）処理】
         // ========================================================
-        
         async function registerPasskey() {
             if (!window.PublicKeyCredential) {
                 showToast("このブラウザはパスキー（生体認証）に対応していないみたいだ。");
                 return;
             }
-
             if (window.location.hostname === "" || window.location.protocol === "file:") {
                 showToast("プレビュー環境では登録できないよ。GitHub Pagesに公開してから試してね！");
                 return;
@@ -355,26 +271,11 @@
 
             const publicKey = {
                 challenge: challenge,
-                rp: {
-                    name: "SlideHub Portal",
-                    id: window.location.hostname
-                },
-                user: {
-                    id: userId,
-                    name: "admin",
-                    displayName: "SlideHub Owner"
-                },
-                pubKeyCredParams: [
-                    { type: "public-key", alg: -7 },
-                    { type: "public-key", alg: -257 }
-                ],
-                authenticatorSelection: {
-                    authenticatorAttachment: "platform",
-                    residentKey: "required",
-                    userVerification: "required"
-                },
-                timeout: 60000,
-                attestation: "none"
+                rp: { name: "SlideHub Portal", id: window.location.hostname },
+                user: { id: userId, name: "admin", displayName: "SlideHub Owner" },
+                pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+                authenticatorSelection: { authenticatorAttachment: "platform", residentKey: "required", userVerification: "required" },
+                timeout: 60000, attestation: "none"
             };
 
             try {
@@ -385,23 +286,15 @@
                     updateSettingsUI();
                 }
             } catch (err) {
-                console.error(err);
                 showToast("登録がキャンセルされたか、エラーが発生したよ。");
             }
         }
 
         async function loginWithPasskey() {
             if (!window.PublicKeyCredential) return;
-
             const challenge = new Uint8Array(32);
             window.crypto.getRandomValues(challenge);
-
-            const publicKey = {
-                challenge: challenge,
-                rpId: window.location.hostname,
-                userVerification: "required",
-                timeout: 60000
-            };
+            const publicKey = { challenge: challenge, rpId: window.location.hostname, userVerification: "required", timeout: 60000 };
 
             try {
                 const assertion = await navigator.credentials.get({ publicKey });
@@ -411,7 +304,6 @@
                     showToast("顔・指紋でロックを解除しました！");
                 }
             } catch (err) {
-                console.error(err);
                 showToast("生体認証がキャンセルされました。");
             }
         }
@@ -441,7 +333,6 @@
         // ========================================================
         // 🚀 【メイン処理】
         // ========================================================
-
         window.onload = () => {
             if (safeStorage.get(SESSION_STORAGE_KEY, true) === "true") {
                 showPortalContent();
@@ -449,15 +340,12 @@
                 document.getElementById('lockScreen').classList.remove('hidden');
                 updateLockScreenUI();
             }
-            renderStaticSlides();
         };
 
         function handleLogin(e) {
             if(e) e.preventDefault();
             const inputField = document.getElementById('portalPassword');
             const errorLabel = document.getElementById('loginError');
-            
-            // 空白が混入してもエラーにならないように trim() で削る
             const password = inputField.value.trim();
 
             errorLabel.classList.add('opacity-0');
@@ -487,6 +375,9 @@
         function showPortalContent() {
             document.getElementById('lockScreen').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
+            
+            // ログイン成功時にGitHubからスライド一覧を自動取得！
+            fetchSlidesAutomatically();
         }
 
         // ========================================================
@@ -514,51 +405,97 @@
 
             errorLabel.classList.add('opacity-0');
 
-            if (newPwd !== newPwdConfirm) {
-                errorLabel.textContent = "新しいパスワードが一致しません。";
-                errorLabel.classList.remove('opacity-0');
-                return;
-            }
-
-            if (newPwd.length < 4) {
-                errorLabel.textContent = "パスワードは4文字以上で設定してください。";
-                errorLabel.classList.remove('opacity-0');
-                return;
-            }
+            if (newPwd !== newPwdConfirm) { errorLabel.textContent = "新しいパスワードが一致しません。"; errorLabel.classList.remove('opacity-0'); return; }
+            if (newPwd.length < 4) { errorLabel.textContent = "パスワードは4文字以上で設定してください。"; errorLabel.classList.remove('opacity-0'); return; }
 
             const currentEncoded = encodePassword(currentPwd);
             const activeEncoded = getActiveEncodedPassword();
 
-            if (currentEncoded !== activeEncoded) {
-                errorLabel.textContent = "現在のパスワードが間違っています。";
-                errorLabel.classList.remove('opacity-0');
-                return;
-            }
+            if (currentEncoded !== activeEncoded) { errorLabel.textContent = "現在のパスワードが間違っています。"; errorLabel.classList.remove('opacity-0'); return; }
 
             const newEncoded = encodePassword(newPwd);
             safeStorage.set(LOCAL_STORAGE_KEY, newEncoded, false);
-            
             closeSettingsModal();
             showToast("パスワードを変更しました！次回から適用されます。");
         }
 
         // ========================================================
+        // 🔄 【GitHub API から自動取得する処理】
+        // ========================================================
+        async function fetchSlidesAutomatically() {
+            const listEl = document.getElementById('slideList');
+            listEl.innerHTML = `
+                <div class="col-span-2 text-center text-xs text-indigo-400 py-12 flex flex-col items-center gap-3">
+                    <div class="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span>GitHubからスライドを探しています...</span>
+                </div>
+            `;
+
+            try {
+                // 設定忘れチェック
+                if (GITHUB_USERNAME === "YOUR_USERNAME" || GITHUB_REPO === "YOUR_REPOSITORY") {
+                    throw new Error("NOT_CONFIGURED");
+                }
+
+                // GitHubのAPIを叩いて、slides/ フォルダの中身一覧をもらう
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/slides`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // .html で終わるファイルだけを絞り込む
+                const htmlFiles = data.filter(item => item.type === 'file' && item.name.endsWith('.html'));
+                
+                // カード描画用のデータ配列を作る
+                const slidesConfig = htmlFiles.map(file => ({
+                    fileName: file.name,
+                    path: `./slides/${file.name}`,
+                    description: "自動取得されたスライド"
+                }));
+
+                renderStaticSlides(slidesConfig);
+
+            } catch (error) {
+                console.error("API取得エラー:", error);
+                if (error.message === "NOT_CONFIGURED") {
+                    listEl.innerHTML = `
+                        <div class="col-span-2 text-center text-xs text-slate-600 py-12 bg-slate-900/20 border border-slate-800/50 rounded-xl">
+                            <p class="text-rose-400 font-bold mb-2">自動取得の設定が必要です</p>
+                            <p>コードの530行目付近にある <code class="bg-slate-800 px-1 rounded text-white">GITHUB_USERNAME</code> と <code class="bg-slate-800 px-1 rounded text-white">GITHUB_REPO</code> をあなたの環境に合わせて変更してね。</p>
+                        </div>
+                    `;
+                } else {
+                    listEl.innerHTML = `
+                        <div class="col-span-2 text-center text-xs text-slate-600 py-12 bg-slate-900/20 border border-slate-800/50 rounded-xl">
+                            <p class="text-rose-400 font-bold mb-2">スライドの自動取得に失敗しました</p>
+                            <p>リポジトリがPrivate（完全非公開）になっているか、設定名が間違っている可能性があります。</p>
+                            <p class="mt-2 text-[10px]">※リポジトリはPublicのまま、このパスワード画面で守る運用を推奨します。</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // ========================================================
         // 🚀 【スライド表示処理】
         // ========================================================
-        function renderStaticSlides() {
+        function renderStaticSlides(slidesData) {
             const listEl = document.getElementById('slideList');
             listEl.innerHTML = '';
 
-            if (STATIC_SLIDES_CONFIG.length === 0) {
+            if (!slidesData || slidesData.length === 0) {
                 listEl.innerHTML = `
                     <div class="col-span-2 text-center text-xs text-slate-600 py-12 bg-slate-900/20 border border-slate-800/50 rounded-xl">
-                        登録されたスライドがありません。コードの STATIC_SLIDES_CONFIG にファイルを追加してね！
+                        自動取得できるスライドがありません。リポジトリの <code>slides/</code> フォルダにHTMLファイルをプッシュしてね！
                     </div>
                 `;
                 return;
             }
 
-            STATIC_SLIDES_CONFIG.forEach(slide => {
+            slidesData.forEach(slide => {
                 const card = document.createElement('div');
                 card.className = "flex flex-col justify-between p-5 bg-slate-900/40 border border-slate-800/80 hover:border-indigo-500/50 hover:bg-slate-900/80 rounded-xl transition-all cursor-pointer group";
                 
@@ -570,8 +507,6 @@
                         showToast("【プレビュー制限】GitHub等にアップロードすると別タブで開くようになります！");
                     }
                 };
-
-                const descText = slide.description || "slidesフォルダ内配置スライド";
 
                 card.innerHTML = `
                     <div class="flex items-start gap-3.5 overflow-hidden mb-4">
@@ -585,14 +520,14 @@
                                 ${slide.fileName}
                             </h3>
                             <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                                ${descText}
+                                ${slide.description}
                             </p>
                         </div>
                     </div>
                     <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-[10px] text-slate-500">
-                        <span class="font-mono">${slide.path}</span>
-                        <div class="flex items-center gap-1 text-indigo-400 font-semibold group-hover:text-indigo-300 transition-colors">
-                            <span>スライドを開く</span>
+                        <span class="font-mono truncate max-w-[70%]">${slide.path}</span>
+                        <div class="flex items-center gap-1 text-indigo-400 font-semibold group-hover:text-indigo-300 transition-colors shrink-0">
+                            <span>開く</span>
                             <svg class="w-3 h-3 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                             </svg>
@@ -607,10 +542,8 @@
             const toast = document.getElementById('toast');
             const toastText = document.getElementById('toastText');
             toastText.textContent = text;
-            
             toast.classList.remove('translate-y-10', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
-
             setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-10', 'opacity-0');
