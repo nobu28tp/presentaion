@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlideHub - プレゼンテーション共有ポータル</title>
+    <!-- Tailwind CSS (デザインを美しく整える軽量フレームワーク) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col">
+
+    <!-- ヘッダー -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md py-4 px-6 sticky top-0 z-40">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                        SlideHub <span class="text-indigo-400 font-medium text-sm">Portal</span>
+                    </h1>
+                    <p class="text-[10px] text-slate-400">事前配置スライドの別タブ再生専用リンク集</p>
+                </div>
+            </div>
+            <div class="text-xs text-indigo-400 bg-indigo-950/40 px-3 py-1.5 rounded-full border border-indigo-900/50 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                GitHub Pages 動作確認済
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
+        
+        <!-- 【セクション】スライド一覧 -->
+        <section class="bg-slate-950/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
+            <div class="mb-6">
+                <h2 class="text-sm font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    公開プレゼンテーション一覧
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">
+                    以下の一覧から見たいスライドを選択してね。クリックすると別タブで開き、iPhoneやiPadでもPC同様にきれいに表示されるよ。
+                </p>
+            </div>
+
+            <!-- スライド一覧リスト（ここにJavaScriptで綺麗にカードが並びます） -->
+            <div id="slideList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- JavaScriptで動的に描画されます -->
+            </div>
+        </section>
+
+        <!-- 【使い方の解説アコーディオン】デジタル庁やコンサル業務での運用を想定し、マニュアルを統合 -->
+        <section class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-5">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                スライドの追加・管理方法
+            </h3>
+            <div class="text-xs text-slate-400 space-y-2 leading-relaxed">
+                <p>GitHub上のフォルダ構成を以下のように配置するだけで自動で反映されるよ！</p>
+                <div class="bg-slate-950 p-3.5 rounded-lg border border-slate-800 font-mono text-[11px] text-indigo-300">
+                    📂 リポジトリの構成例：<br>
+                    ├── index.html (このファイル)<br>
+                    └── <span class="text-emerald-400 font-bold">slides/</span> (この配下にMarpから出したHTMLを入れる)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 260526_益田市勉強会_幹部向け.html<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── (新規追加スライド).html
+                </div>
+                <p class="pt-1">
+                    新しいスライドを増やした時は、この <code class="bg-slate-950 text-indigo-300 px-1 py-0.5 rounded">index.html</code> のコード最下部付近にある「<code class="bg-slate-950 text-emerald-400 px-1 py-0.5 rounded">STATIC_SLIDES_CONFIG</code>」の配列に、ファイル名を追加してプッシュ（アップロード）してね。
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-slate-900 bg-slate-950/40 py-4 px-6 text-center text-[10px] text-slate-600 mt-auto">
+        SlideHub Portal | Designed for seamless Marp slide management on iOS, iPadOS and desktop.
+    </footer>
+
+    <!-- スライドデータ定義 ＆ レンダリング用スクリプト -->
+    <script>
+        // ========================================================
+        // 📁 【スライド定義】新しいスライドを増やしたい時は、ここに設定を増やすだけでOK！
+        // ========================================================
+        const STATIC_SLIDES_CONFIG = [
+            { 
+                fileName: "260526_益田市勉強会_幹部向け.html", 
+                path: "./slides/260526_益田市勉強会_幹部向け.html",
+                description: "島根県益田市 幹部職員向け勉強会用スライド"
+            }
+            // 💡 追加する場合は、以下のようにカンマで区切って定義してね
+            // ,
+            // {
+            //     fileName: "新規プレゼン資料.html",
+            //     path: "./slides/新規プレゼン資料.html",
+            //     description: "ここにスライドの簡単な説明文を入れられます"
+            // }
+        ];
+
+        // ========================================================
+        // 🚀 【表示処理】定義されたスライドをHTMLカードに自動描画する
+        // ========================================================
+        window.onload = () => {
+            const listEl = document.getElementById('slideList');
+            listEl.innerHTML = '';
+
+            if (STATIC_SLIDES_CONFIG.length === 0) {
+                listEl.innerHTML = `
+                    <div class="col-span-2 text-center text-xs text-slate-600 py-12 bg-slate-900/20 border border-slate-800/50 rounded-xl">
+                        登録されたスライドがありません。コードの STATIC_SLIDES_CONFIG にファイルを追加してね！
+                    </div>
+                `;
+                return;
+            }
+
+            // カードを一枚ずつ生成
+            STATIC_SLIDES_CONFIG.forEach(slide => {
+                const card = document.createElement('div');
+                // ホバーした時に少し浮き上がり、境界線が光るリッチなコンサルタント向けUIデザイン
+                card.className = "flex flex-col justify-between p-5 bg-slate-900/40 border border-slate-800/80 hover:border-indigo-500/50 hover:bg-slate-900/80 rounded-xl transition-all cursor-pointer group";
+                
+                // カード全体をクリックしたときに別タブで直接再生
+                card.onclick = () => {
+                    window.open(slide.path, '_blank');
+                };
+
+                // 説明文の有無によるフォールバック設定
+                const descText = slide.description || "slidesフォルダ内配置スライド";
+
+                card.innerHTML = `
+                    <div class="flex items-start gap-3.5 overflow-hidden mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-950/80 border border-indigo-800/40 flex items-center justify-center shrink-0 text-indigo-400 group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h3 class="text-sm font-bold text-slate-200 group-hover:text-indigo-300 transition-colors truncate" title="${slide.fileName}">
+                                ${slide.fileName}
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                                ${descText}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-[10px] text-slate-500">
+                        <span class="font-mono">${slide.path}</span>
+                        <div class="flex items-center gap-1 text-indigo-400 font-semibold group-hover:text-indigo-300 transition-colors">
+                            <span>スライドを開く</span>
+                            <svg class="w-3 h-3 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </div>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+        };
+    </script>
+</body>
+</html>
